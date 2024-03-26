@@ -14,11 +14,13 @@ def calcaño (edad):
 
     if edad >= 18:
         print("son legal");
-    print("no sos legal");
+    else:
+        print("no sos legal");
 
     if edad % 5 == 0:
         print("tu edad es multiplo de 5!!!!!!!!!");
-    print("tu edad no es multiplo de 5!!!!!!!!!");
+    else:
+        print("tu edad no es multiplo de 5!!!!!!!!!");
    
 print("hola ", nombre,"tienes: ", edad, "y sos de ", direccion);
 
