@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órdenes de Trabajo</title>
+    <link rel="stylesheet" href="styles2.css">
+</head>
+<body>
+    <h1>Órdenes de Trabajo</h1>
+    <table id="ordenesTable">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Patente</th>
+                <th>Camión</th>
+                <th>Trabajo</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Las órdenes se agregarán aquí -->
+        </tbody>
+    </table>
+    <br>
+    <a href="index.html">Cargar Nueva Orden</a> <!-- Enlace a la página de carga -->
+
+    <script>
+        async function cargarOrdenes() {
+            try {
+                const response = await fetch('/api/ordenes');
+                const ordenes = await response.json();
+                const tablaCuerpo = document.getElementById('ordenesTable').getElementsByTagName('tbody')[0];
+
+                ordenes.forEach(orden => {
+                    const fila = tablaCuerpo.insertRow();
+                    fila.insertCell(0).textContent = new Date(orden.fecha).toLocaleString();
+                    fila.insertCell(1).textContent = orden.cliente;
+                    fila.insertCell(2).textContent = orden.patente;
+                    fila.insertCell(3).textContent = orden.camion;
+                    fila.insertCell(4).textContent = orden.trabajo;
+                    fila.insertCell(5).textContent = orden.precio;
+                });
+            } catch (error) {
+                console.error('Error al cargar las órdenes:', error);
+            }
+        }
+
+        // Cargar las órdenes al cargar la página
+        window.onload = cargarOrdenes;
+    </script>
+</body>
+</html>
