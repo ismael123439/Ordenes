@@ -3,33 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Órdenes de Trabajo</title>
-  <link rel="stylesheet" href="/styles.css">
+  <title>Gestión de Órdenes de Trabajo</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>Gestión de Órdenes de Trabajo</h1>
-    </header>
+    <h1>Órdenes de Trabajo</h1>
 
-    <section id="orden-form">
-      <h2>Crear Nueva Orden</h2>
-      <form id="orden-formulario">
-        <input type="text" id="cliente" placeholder="Cliente" required>
-        <input type="text" id="patente" placeholder="Patente" required>
-        <input type="text" id="camion" placeholder="Camión" required>
-        <textarea id="trabajo" placeholder="Trabajo (min. 300 palabras)" required></textarea>
-        <input type="number" id="precio" placeholder="Precio" required>
-        <button type="submit">Agregar Orden</button>
-      </form>
-    </section>
+    <form id="form-orden">
+      <input type="text" id="cliente" placeholder="Cliente" required>
+      <input type="text" id="patente" placeholder="Patente" required>
+      <input type="text" id="camion" placeholder="Camión" required>
+      <textarea id="trabajo" placeholder="Descripción del trabajo (mínimo 300 palabras)" required></textarea>
+      <input type="number" id="precio" placeholder="Precio" required>
+      <button type="submit">Crear Orden</button>
+    </form>
 
-    <section id="ordenes">
-      <h2>Órdenes de Trabajo</h2>
-      <div id="ordenes-lista"></div>
-    </section>
+    <ul id="ordenes-lista"></ul>
   </div>
 
-  <script src="/app.js"></script>
+  <script>
+    const formOrden = document.getElementById('form-orden');
+    const ordenesLista = document.getElementById('ordenes-lista');
+
+    // Función para cargar las órdenes desde el servidor
+    async function cargarOrdenes() {
+      const res = await fetch('/ordenes');
+      const ordenes = await res.json();
+      ordenesLista.innerHTML = '';
+      ordenes.forEach(orden => {
+        const li = document.createElement('li');
+        li.classList.add('orden-item');
+        li.innerHTML = `
+          <p><strong>Fecha:</strong> ${new Date(orden.fecha).toLocaleDateString()}</p>
+          <p><strong>Cliente:</strong> ${orden.cliente}</p>
+          <p><strong>Patente:</strong> ${orden.patente}</p>
+          <p><strong>Camión:</strong> ${orden.camion}</p>
+          <p><strong>Trabajo:</strong> ${orden.trabajo}</p>
+          <p><strong>Precio:</strong> $${orden.precio}</p>
+          <button onclick="editarOrden('${orden._id}')">Editar</button>
+          <button onclick="borrarOrden('${orden._id}')">Borrar</button>
+        `;
+        ordenesLista.appendChild(li);
+      });
+    }
+
+    // Función para crear una nueva orden
+    formOrden.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const nuevaOrden = {
+        cliente: document.getElementById('cliente').value,
+        patente: document.getElementById('patente').value,
+        camion: document.getElementById('camion').value,
+        trabajo: document.getElementById('trabajo').value,
+        precio: parseFloat(document.getElementById('precio').value),
+        fecha: new Date()
+      };
+
+      await fetch('/orden', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(nuevaOrden)
+      });
+
+      formOrden.reset();
+      cargarOrdenes();
+    });
+
+    // Función para borrar una orden
+    async function borrarOrden(id) {
+      if (confirm('¿Estás seguro de borrar esta orden?')) {
+        await fetch(`/orden/${id}`, {
+          method: 'DELETE'
+        });
+        cargarOrdenes();
+      }
+    }
+
+    // Función para editar una orden (pendiente de implementación)
+    async function editarOrden(id) {
+      // Aquí iría la lógica para editar la orden, por ejemplo, mostrando un formulario con los datos actuales
+    }
+
+    // Cargar las órdenes al cargar la página
+    window.onload = cargarOrdenes;
+  </script>
 </body>
 </html>

@@ -1,13 +1,18 @@
 {
-    "name": "ordenes-app",
-    "version": "1.0.0",
-    "scripts": {
-      "dev": "vercel dev",
-      "build": "vercel build",
-      "start": "vercel start"
-    },
-    "dependencies": {
-      "mongodb": "^5.0.0"
-    }
-  }
-  
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "mongodb": "^6.10.0"
+  },
+  "name": "ordenes",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

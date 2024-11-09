@@ -1,62 +1,61 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('orden-formulario');
-  const listaOrdenes = document.getElementById('ordenes-lista');
+const express = require('express');
+const { MongoClient, ObjectId } = require('mongodb');
+const app = express();
+const port = 3000;
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
+// Conexión con MongoDB
+const uri = "mongodb+srv://isma:isma@cluster0.tgxly.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const client = new MongoClient(uri);
 
-    const cliente = document.getElementById('cliente').value;
-    const patente = document.getElementById('patente').value;
-    const camion = document.getElementById('camion').value;
-    const trabajo = document.getElementById('trabajo').value;
-    const precio = document.getElementById('precio').value;
+let db, collection;
 
-    const orden = { cliente, patente, camion, trabajo, precio };
+client.connect()
+  .then(() => {
+    db = client.db("ordenes_trabajo");
+    collection = db.collection("ordenes");
+    console.log("Conectado a la base de datos MongoDB.");
+  })
+  .catch(err => console.error(err));
 
-    try {
-      const response = await fetch('/api/orden', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orden),
-      });
+app.use(express.json());
+app.use(express.static('public')); // Sirve los archivos estáticos como el HTML
 
-      if (response.ok) {
-        alert('Orden creada con éxito');
-        form.reset();
-        obtenerOrdenes();
-      } else {
-        alert('Error al crear la orden');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al conectar con el servidor');
+// Ruta para obtener todas las órdenes
+app.get('/ordenes', async (req, res) => {
+  const ordenes = await collection.find().toArray();
+  res.json(ordenes);
+});
+
+// Ruta para crear una nueva orden
+app.post('/orden', async (req, res) => {
+  const nuevaOrden = req.body;
+  await collection.insertOne(nuevaOrden);
+  res.status(201).send('Orden creada');
+});
+
+// Ruta para editar una orden
+app.put('/orden/:id', async (req, res) => {
+  const { id } = req.params;
+  const actualizacion = req.body;
+  await collection.updateOne({ _id: new ObjectId(id) }, { $set: actualizacion });
+  res.send('Orden actualizada');
+});
+
+// Ruta para borrar una orden
+app.delete('/orden/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 1) {
+      res.send('Orden eliminada');
+    } else {
+      res.status(404).send('Orden no encontrada');
     }
-  });
+  } catch (err) {
+    res.status(500).send('Error al eliminar la orden');
+  }
+});
 
-  const obtenerOrdenes = async () => {
-    try {
-      const response = await fetch('/api/ordenes');
-      const ordenes = await response.json();
-
-      listaOrdenes.innerHTML = '';
-      ordenes.forEach((orden) => {
-        const ordenDiv = document.createElement('div');
-        ordenDiv.classList.add('orden');
-
-        ordenDiv.innerHTML = `
-          <h3>${orden.cliente}</h3>
-          <p><strong>Patente:</strong> ${orden.patente}</p>
-          <p><strong>Camión:</strong> ${orden.camion}</p>
-          <p><strong>Trabajo:</strong> ${orden.trabajo}</p>
-          <p><strong>Precio:</strong> $${orden.precio}</p>
-        `;
-
-        listaOrdenes.appendChild(ordenDiv);
-      });
-    } catch (error) {
-      console.error('Error al obtener las órdenes:', error);
-    }
-  };
-
-  obtenerOrdenes();
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });
