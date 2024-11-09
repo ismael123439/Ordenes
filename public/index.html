@@ -4,116 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Órdenes de Trabajo</title>
-  <link rel="stylesheet" href="style.css">
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const url = '/api/ordenes';
-
-      async function cargarOrdenes() {
-        try {
-          const response = await fetch(url);
-          const ordenes = await response.json();
-          const listaOrdenes = document.getElementById('lista-ordenes');
-          listaOrdenes.innerHTML = ''; // Limpiar la lista antes de agregar nuevas órdenes
-          ordenes.forEach(orden => {
-            const li = document.createElement('li');
-            const detalles = document.createElement('div');
-            detalles.classList.add('orden-detalle');
-            detalles.innerHTML = `
-              <span class="fecha">Fecha: ${orden.fecha}</span>
-              <span class="cliente">Cliente: ${orden.cliente}</span>
-              <span class="patente">Patente: ${orden.patente}</span>
-              <span class="camion">Camión: ${orden.camion}</span>
-              <span class="trabajo">Trabajo: ${orden.trabajo}</span>
-              <span class="precio">Precio: $${orden.precio}</span>
-            `;
-            const editarBtn = document.createElement('button');
-            editarBtn.textContent = 'Editar';
-            editarBtn.onclick = () => editarOrden(orden._id);
-            const borrarBtn = document.createElement('button');
-            borrarBtn.textContent = 'Borrar';
-            borrarBtn.onclick = () => borrarOrden(orden._id);
-
-            li.appendChild(detalles);
-            li.appendChild(editarBtn);
-            li.appendChild(borrarBtn);
-            listaOrdenes.appendChild(li);
-          });
-        } catch (error) {
-          console.error('Error al cargar las órdenes', error);
-        }
-      }
-
-      document.getElementById('crear-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fecha = document.getElementById('fecha').value;
-        const cliente = document.getElementById('cliente').value;
-        const patente = document.getElementById('patente').value;
-        const camion = document.getElementById('camion').value;
-        const trabajo = document.getElementById('trabajo').value;
-        const precio = document.getElementById('precio').value;
-        const nuevaOrden = { fecha, cliente, patente, camion, trabajo, precio };
-
-        try {
-          await fetch('/api/orden', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevaOrden)
-          });
-          cargarOrdenes();
-        } catch (error) {
-          console.error('Error al crear la orden', error);
-        }
-      });
-
-      async function editarOrden(id) {
-        const nuevoTrabajo = prompt('Nuevo trabajo:');
-        if (nuevoTrabajo) {
-          try {
-            const actualizacion = { trabajo: nuevoTrabajo };
-            await fetch(`/api/orden/${id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(actualizacion)
-            });
-            cargarOrdenes();
-          } catch (error) {
-            console.error('Error al editar la orden', error);
-          }
-        }
-      }
-
-      async function borrarOrden(id) {
-        if (confirm('¿Estás seguro de borrar esta orden?')) {
-          try {
-            const response = await fetch(`/api/orden/${id}`, { method: 'DELETE' });
-            if (!response.ok) {
-              throw new Error('No se pudo borrar la orden');
-            }
-            cargarOrdenes();
-          } catch (error) {
-            console.error('Error al borrar la orden', error);
-          }
-        }
-      }
-
-      cargarOrdenes();
-    });
-  </script>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>Órdenes de Trabajo</h1>
-    <form id="crear-form">
-      <input type="date" id="fecha" required>
-      <input type="text" id="cliente" placeholder="Nombre del cliente" required>
-      <input type="text" id="patente" placeholder="Patente del vehículo" required>
-      <input type="text" id="camion" placeholder="Camión" required>
-      <textarea id="trabajo" placeholder="Descripción del trabajo" required></textarea>
-      <input type="number" id="precio" placeholder="Precio" required>
-      <button type="submit">Crear Orden</button>
-    </form>
-    <ul id="lista-ordenes"></ul>
+    <header>
+      <h1>Gestión de Órdenes de Trabajo</h1>
+    </header>
+
+    <section id="orden-form">
+      <h2>Crear Nueva Orden</h2>
+      <form id="orden-formulario">
+        <input type="text" id="cliente" placeholder="Cliente" required>
+        <input type="text" id="patente" placeholder="Patente" required>
+        <input type="text" id="camion" placeholder="Camión" required>
+        <textarea id="trabajo" placeholder="Trabajo (min. 300 palabras)" required></textarea>
+        <input type="number" id="precio" placeholder="Precio" required>
+        <button type="submit">Agregar Orden</button>
+      </form>
+    </section>
+
+    <section id="ordenes">
+      <h2>Órdenes de Trabajo</h2>
+      <div id="ordenes-lista"></div>
+    </section>
   </div>
+
+  <script src="/app.js"></script>
 </body>
 </html>
