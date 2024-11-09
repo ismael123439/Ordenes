@@ -1,72 +1,121 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargar Orden de Trabajo</title>
-    <link rel="stylesheet" href="styles1.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orden de Trabajo</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = 'http://localhost:3000/ordenes';
+
+      // Mostrar todas las órdenes
+      async function cargarOrdenes() {
+        const response = await fetch(url);
+        const ordenes = await response.json();
+        const listaOrdenes = document.getElementById('lista-ordenes');
+        listaOrdenes.innerHTML = ''; // Limpiar la lista antes de agregar nuevas órdenes
+        ordenes.forEach(orden => {
+          const li = document.createElement('li');
+          const detalles = document.createElement('div');
+          detalles.classList.add('orden-detalle');
+
+          detalles.innerHTML = `
+            <span class="fecha">Fecha: ${orden.fecha}</span>
+            <span class="cliente">Cliente: ${orden.cliente}</span>
+            <span class="patente">Patente: ${orden.patente}</span>
+            <span class="camion">Camión: ${orden.camion}</span>
+            <span class="trabajo">Trabajo: ${orden.trabajo}</span>
+            <span class="precio">Precio: $${orden.precio}</span>
+          `;
+
+          const editarBtn = document.createElement('button');
+          editarBtn.textContent = 'Editar';
+          editarBtn.onclick = () => editarOrden(orden._id);
+          const borrarBtn = document.createElement('button');
+          borrarBtn.textContent = 'Borrar';
+          borrarBtn.onclick = () => borrarOrden(orden._id);
+
+          li.appendChild(detalles);
+          li.appendChild(editarBtn);
+          li.appendChild(borrarBtn);
+          listaOrdenes.appendChild(li);
+        });
+      }
+
+      // Crear una nueva orden
+      document.getElementById('crear-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fecha = document.getElementById('fecha').value;
+        const cliente = document.getElementById('cliente').value;
+        const patente = document.getElementById('patente').value;
+        const camion = document.getElementById('camion').value;
+        const trabajo = document.getElementById('trabajo').value;
+        const precio = document.getElementById('precio').value;
+
+        const nuevaOrden = { fecha, cliente, patente, camion, trabajo, precio };
+        await fetch('http://localhost:3000/orden', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevaOrden)
+        });
+
+        cargarOrdenes();
+      });
+
+      // Editar una orden
+      async function editarOrden(id) {
+        const nuevoTrabajo = prompt('Nuevo trabajo:');
+        if (nuevoTrabajo) {
+          const actualizacion = { trabajo: nuevoTrabajo };
+          await fetch(`http://localhost:3000/orden/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(actualizacion)
+          });
+          cargarOrdenes();
+        }
+      }
+
+      // Borrar una orden
+      async function borrarOrden(id) {
+        if (confirm('¿Estás seguro de borrar esta orden?')) {
+          try {
+            const response = await fetch(`http://localhost:3000/orden/${id}`, {
+              method: 'DELETE',
+            });
+
+            if (!response.ok) {
+              throw new Error('No se pudo borrar la orden');
+            }
+
+            cargarOrdenes(); // Recargar la lista de órdenes
+          } catch (error) {
+            console.error(error);
+            alert('Error al borrar la orden');
+          }
+        }
+      }
+
+      cargarOrdenes(); // Cargar las órdenes cuando la página cargue
+    });
+  </script>
 </head>
 <body>
-    <h1>Cargar Orden de Trabajo</h1>
-    <form id="ordenDeTrabajoForm">
-        <label for="fecha">Fecha:</label>
-        <input type="datetime-local" id="fecha" name="fecha" required><br>
+  <div class="container">
+    <h1>Órdenes de Trabajo</h1>
 
-        <label for="cliente">Cliente:</label>
-        <input type="text" id="cliente" name="cliente" required><br>
-
-        <label for="patente">Patente:</label>
-        <input type="text" id="patente" name="patente" required><br>
-
-        <label for="camion">Camión:</label>
-        <input type="text" id="camion" name="camion" required><br>
-
-        <label for="trabajo">Trabajo:</label>
-        <input type="text" id="trabajo" name="trabajo" required><br>
-
-        <label for="precio">Precio:</label>
-        <input type="number" id="precio" name="precio" required><br>
-
-        <button type="submit">Cargar Orden de Trabajo</button>
+    <form id="crear-form">
+      <input type="date" id="fecha" required>
+      <input type="text" id="cliente" placeholder="Nombre del cliente" required>
+      <input type="text" id="patente" placeholder="Patente del vehículo" required>
+      <input type="text" id="camion" placeholder="Camión" required>
+      <textarea id="trabajo" placeholder="Descripción del trabajo" required></textarea>
+      <input type="number" id="precio" placeholder="Precio" required>
+      <button type="submit">Crear Orden</button>
     </form>
 
-    <br>
-    <a href="ordenes.html">Ver Órdenes de Trabajo</a> <!-- Enlace a la página de órdenes -->
-
-    <script>
-        document.getElementById('ordenDeTrabajoForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const ordenDeTrabajo = {
-                fecha: document.getElementById('fecha').value,
-                cliente: document.getElementById('cliente').value,
-                patente: document.getElementById('patente').value,
-                camion: document.getElementById('camion').value,
-                trabajo: document.getElementById('trabajo').value,
-                precio: parseFloat(document.getElementById('precio').value),
-            };
-
-            try {
-                const response = await fetch('/api/orden', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(ordenDeTrabajo),
-                });
-
-                if (response.ok) {
-                    const jsonResponse = await response.json();
-                    alert(`Orden de trabajo cargada con éxito. ID: ${jsonResponse.insertedId}`);
-                    document.getElementById('ordenDeTrabajoForm').reset(); // Resetea el formulario
-                } else {
-                    alert('Error al cargar la orden de trabajo');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al conectar con el servidor');
-            }
-        });
-    </script>
+    <ul id="lista-ordenes"></ul>
+  </div>
 </body>
 </html>
