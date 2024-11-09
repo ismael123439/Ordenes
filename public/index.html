@@ -3,43 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordenes de Trabajo</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Órdenes de Trabajo</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <div class="container">
-        <h1>Crear y Ver Órdenes de Trabajo</h1>
-
-        <!-- Formulario para crear órdenes -->
+        <h1>Órdenes de Trabajo</h1>
         <form id="ordenForm">
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" required>
-            
-            <label for="cliente">Cliente:</label>
-            <input type="text" id="cliente" required>
-
-            <label for="patente">Patente:</label>
-            <input type="text" id="patente" required>
-
-            <label for="camion">Camión:</label>
-            <input type="text" id="camion" required>
-
-            <label for="trabajo">Trabajo:</label>
-            <textarea id="trabajo" rows="5" required></textarea>
-
-            <label for="precio">Precio:</label>
-            <input type="number" id="precio" required>
-
+            <input type="text" id="fecha" placeholder="Fecha" required>
+            <input type="text" id="cliente" placeholder="Cliente" required>
+            <input type="text" id="patente" placeholder="Patente" required>
+            <input type="text" id="camion" placeholder="Camión" required>
+            <textarea id="trabajo" placeholder="Descripción del trabajo" required></textarea>
+            <input type="number" id="precio" placeholder="Precio" required>
             <button type="submit">Crear Orden</button>
         </form>
-
-        <!-- Lista de órdenes -->
-        <div id="ordenesList" class="ordenes-list"></div>
+        <div id="ordenesList"></div>
     </div>
 
     <script>
-        const apiUrl = 'https://ordenes-orpin.vercel.app'; // Cambia a tu URL de Vercel real
+        const apiUrl = 'https://<tu-proyecto>.vercel.app';  // Cambia esto al dominio de Vercel
         const ordenesList = document.getElementById('ordenesList');
         const ordenForm = document.getElementById('ordenForm');
 

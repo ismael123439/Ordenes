@@ -2,7 +2,7 @@ const express = require('express');
 const { MongoClient } = require('mongodb');
 const app = express();
 
-// Asegúrate de que el puerto esté configurado para Vercel
+// Asegúrate de usar el puerto que Vercel asigna
 const port = process.env.PORT || 3000; 
 
 // Conexión con MongoDB
@@ -17,7 +17,7 @@ client.connect()
     collection = db.collection("ordenes");
     console.log("Conectado a la base de datos MongoDB.");
   })
-  .catch(err => console.error("Error al conectar con MongoDB: ", err));
+  .catch(err => console.error(err));
 
 app.use(express.json());
 app.use(express.static('public')); // Sirve los archivos estáticos como el HTML
@@ -35,24 +35,16 @@ app.get('/ordenes', async (req, res) => {
 // Ruta para crear una nueva orden
 app.post('/orden', async (req, res) => {
   const nuevaOrden = req.body;
-  try {
-    await collection.insertOne(nuevaOrden);
-    res.status(201).send('Orden creada');
-  } catch (err) {
-    res.status(500).send('Error al crear la orden');
-  }
+  await collection.insertOne(nuevaOrden);
+  res.status(201).send('Orden creada');
 });
 
 // Ruta para editar una orden
 app.put('/orden/:id', async (req, res) => {
   const { id } = req.params;
   const actualizacion = req.body;
-  try {
-    await collection.updateOne({ _id: new MongoClient.ObjectId(id) }, { $set: actualizacion });
-    res.send('Orden actualizada');
-  } catch (err) {
-    res.status(500).send('Error al actualizar la orden');
-  }
+  await collection.updateOne({ _id: new MongoClient.ObjectId(id) }, { $set: actualizacion });
+  res.send('Orden actualizada');
 });
 
 // Ruta para borrar una orden
