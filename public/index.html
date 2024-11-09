@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="style.css">
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const url = 'http://localhost:3000/ordenes';
+      const urlBase = 'https://tu-proyecto.vercel.app/api/ordenes'; // Cambia esta URL por la de tu proyecto en Vercel
 
       // Mostrar todas las órdenes
       async function cargarOrdenes() {
-        const response = await fetch(url);
+        const response = await fetch(urlBase);
         const ordenes = await response.json();
         const listaOrdenes = document.getElementById('lista-ordenes');
         listaOrdenes.innerHTML = ''; // Limpiar la lista antes de agregar nuevas órdenes
@@ -54,7 +54,7 @@
         const precio = document.getElementById('precio').value;
 
         const nuevaOrden = { fecha, cliente, patente, camion, trabajo, precio };
-        await fetch('http://localhost:3000/orden', {
+        await fetch(urlBase, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(nuevaOrden)
@@ -68,7 +68,7 @@
         const nuevoTrabajo = prompt('Nuevo trabajo:');
         if (nuevoTrabajo) {
           const actualizacion = { trabajo: nuevoTrabajo };
-          await fetch(`http://localhost:3000/orden/${id}`, {
+          await fetch(`${urlBase}/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(actualizacion)
@@ -81,7 +81,7 @@
       async function borrarOrden(id) {
         if (confirm('¿Estás seguro de borrar esta orden?')) {
           try {
-            const response = await fetch(`http://localhost:3000/orden/${id}`, {
+            const response = await fetch(`${urlBase}/${id}`, {
               method: 'DELETE',
             });
 
