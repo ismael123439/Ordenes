@@ -1,130 +1,123 @@
-/* Estilo global */
+/* Estilos generales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #1a1a1a;
-    color: white;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Contenedor principal */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  /* Estilo para los contenedores de las órdenes */
-  .orden {
-    background-color: #2c2c2c;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out;
-  }
-  
-  /* Efecto al pasar el mouse */
-  .orden:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Títulos dentro de cada orden */
-  .orden h3 {
-    font-size: 1.5rem;
-    color: #4caf50; /* Verde */
-    margin: 0;
-    margin-bottom: 10px;
-  }
-  
-  /* Subtítulos para los detalles de la orden */
-  .orden p {
-    font-size: 1rem;
-    margin: 5px 0;
-    color: #b3b3b3; /* Gris claro */
-  }
-  
-  /* Etiquetas específicas para cada detalle */
-  .orden .fecha {
-    color: #0099cc; /* Azul */
-  }
-  
-  .orden .cliente {
-    color: #ffffff; /* Blanco */
-  }
-  
-  .orden .patente {
-    color: #ffcc00; /* Amarillo */
-  }
-  
-  .orden .camion {
-    color: #e57373; /* Rojo claro */
-  }
-  
-  .orden .trabajo {
-    color: #ffffff;
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-  }
-  
-  .orden .precio {
-    font-size: 1.2rem;
-    color: #4caf50; /* Verde */
-    font-weight: bold;
-  }
-  
-  /* Botones de acción (editar, borrar) */
-  .botones {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  
-  .botones button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .botones button:hover {
-    background-color: #388e3c; /* Verde más oscuro */
-  }
-  
-  /* Estilos para los formularios de agregar/editar órdenes */
-  form {
-    background-color: #2c2c2c;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  form input, form textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    background-color: #333;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 5px;
-  }
-  
-  form button {
-    background-color: #4caf50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  form button:hover {
-    background-color: #388e3c;
-  }
-  
+  font-family: Arial, sans-serif;
+  background-color: #121212; /* Negro */
+  color: #f0f0f0; /* Blanco */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+/* Contenedor principal */
+.container {
+  background-color: #1c1c1c; /* Gris oscuro */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 800px;
+}
+
+/* Títulos */
+h1 {
+  color: #009688; /* Verde */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #03a9f4; /* Azul */
+  margin-bottom: 10px;
+}
+
+/* Formulario */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+input, textarea {
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background-color: #333;
+  color: #fff;
+  font-size: 16px;
+  width: 100%;
+}
+
+textarea {
+  min-height: 150px;
+  max-height: 400px;
+}
+
+button {
+  padding: 10px;
+  background-color: #009688; /* Verde */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00796b; /* Verde más oscuro */
+}
+
+/* Lista de órdenes */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #2c3e50; /* Azul oscuro */
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+li button {
+  background-color: #f44336; /* Rojo */
+  margin-top: 10px;
+  width: 100px;
+  align-self: flex-end;
+}
+
+li button:hover {
+  background-color: #d32f2f; /* Rojo más oscuro */
+}
+
+/* Estilo de los detalles de la orden */
+.orden-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.orden-detalle span {
+  font-weight: bold;
+}
+
+.fecha {
+  color: #607d8b; /* Gris claro */
+}
+
+.cliente, .patente, .camion, .trabajo, .precio {
+  color: #ffffff;
+}
