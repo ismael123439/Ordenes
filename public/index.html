@@ -3,47 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orden de Trabajo</title>
+  <title>Órdenes de Trabajo</title>
   <link rel="stylesheet" href="style.css">
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const urlBase = 'https://tu-proyecto.vercel.app/api/ordenes'; // Cambia esta URL por la de tu proyecto en Vercel
+      const url = '/api/ordenes';
 
-      // Mostrar todas las órdenes
       async function cargarOrdenes() {
-        const response = await fetch(urlBase);
-        const ordenes = await response.json();
-        const listaOrdenes = document.getElementById('lista-ordenes');
-        listaOrdenes.innerHTML = ''; // Limpiar la lista antes de agregar nuevas órdenes
-        ordenes.forEach(orden => {
-          const li = document.createElement('li');
-          const detalles = document.createElement('div');
-          detalles.classList.add('orden-detalle');
+        try {
+          const response = await fetch(url);
+          const ordenes = await response.json();
+          const listaOrdenes = document.getElementById('lista-ordenes');
+          listaOrdenes.innerHTML = ''; // Limpiar la lista antes de agregar nuevas órdenes
+          ordenes.forEach(orden => {
+            const li = document.createElement('li');
+            const detalles = document.createElement('div');
+            detalles.classList.add('orden-detalle');
+            detalles.innerHTML = `
+              <span class="fecha">Fecha: ${orden.fecha}</span>
+              <span class="cliente">Cliente: ${orden.cliente}</span>
+              <span class="patente">Patente: ${orden.patente}</span>
+              <span class="camion">Camión: ${orden.camion}</span>
+              <span class="trabajo">Trabajo: ${orden.trabajo}</span>
+              <span class="precio">Precio: $${orden.precio}</span>
+            `;
+            const editarBtn = document.createElement('button');
+            editarBtn.textContent = 'Editar';
+            editarBtn.onclick = () => editarOrden(orden._id);
+            const borrarBtn = document.createElement('button');
+            borrarBtn.textContent = 'Borrar';
+            borrarBtn.onclick = () => borrarOrden(orden._id);
 
-          detalles.innerHTML = `
-            <span class="fecha">Fecha: ${orden.fecha}</span>
-            <span class="cliente">Cliente: ${orden.cliente}</span>
-            <span class="patente">Patente: ${orden.patente}</span>
-            <span class="camion">Camión: ${orden.camion}</span>
-            <span class="trabajo">Trabajo: ${orden.trabajo}</span>
-            <span class="precio">Precio: $${orden.precio}</span>
-          `;
-
-          const editarBtn = document.createElement('button');
-          editarBtn.textContent = 'Editar';
-          editarBtn.onclick = () => editarOrden(orden._id);
-          const borrarBtn = document.createElement('button');
-          borrarBtn.textContent = 'Borrar';
-          borrarBtn.onclick = () => borrarOrden(orden._id);
-
-          li.appendChild(detalles);
-          li.appendChild(editarBtn);
-          li.appendChild(borrarBtn);
-          listaOrdenes.appendChild(li);
-        });
+            li.appendChild(detalles);
+            li.appendChild(editarBtn);
+            li.appendChild(borrarBtn);
+            listaOrdenes.appendChild(li);
+          });
+        } catch (error) {
+          console.error('Error al cargar las órdenes', error);
+        }
       }
 
-      // Crear una nueva orden
       document.getElementById('crear-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const fecha = document.getElementById('fecha').value;
@@ -52,59 +52,58 @@
         const camion = document.getElementById('camion').value;
         const trabajo = document.getElementById('trabajo').value;
         const precio = document.getElementById('precio').value;
-
         const nuevaOrden = { fecha, cliente, patente, camion, trabajo, precio };
-        await fetch(urlBase, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevaOrden)
-        });
 
-        cargarOrdenes();
+        try {
+          await fetch('/api/orden', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaOrden)
+          });
+          cargarOrdenes();
+        } catch (error) {
+          console.error('Error al crear la orden', error);
+        }
       });
 
-      // Editar una orden
       async function editarOrden(id) {
         const nuevoTrabajo = prompt('Nuevo trabajo:');
         if (nuevoTrabajo) {
-          const actualizacion = { trabajo: nuevoTrabajo };
-          await fetch(`${urlBase}/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(actualizacion)
-          });
-          cargarOrdenes();
-        }
-      }
-
-      // Borrar una orden
-      async function borrarOrden(id) {
-        if (confirm('¿Estás seguro de borrar esta orden?')) {
           try {
-            const response = await fetch(`${urlBase}/${id}`, {
-              method: 'DELETE',
+            const actualizacion = { trabajo: nuevoTrabajo };
+            await fetch(`/api/orden/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(actualizacion)
             });
-
-            if (!response.ok) {
-              throw new Error('No se pudo borrar la orden');
-            }
-
-            cargarOrdenes(); // Recargar la lista de órdenes
+            cargarOrdenes();
           } catch (error) {
-            console.error(error);
-            alert('Error al borrar la orden');
+            console.error('Error al editar la orden', error);
           }
         }
       }
 
-      cargarOrdenes(); // Cargar las órdenes cuando la página cargue
+      async function borrarOrden(id) {
+        if (confirm('¿Estás seguro de borrar esta orden?')) {
+          try {
+            const response = await fetch(`/api/orden/${id}`, { method: 'DELETE' });
+            if (!response.ok) {
+              throw new Error('No se pudo borrar la orden');
+            }
+            cargarOrdenes();
+          } catch (error) {
+            console.error('Error al borrar la orden', error);
+          }
+        }
+      }
+
+      cargarOrdenes();
     });
   </script>
 </head>
 <body>
   <div class="container">
     <h1>Órdenes de Trabajo</h1>
-
     <form id="crear-form">
       <input type="date" id="fecha" required>
       <input type="text" id="cliente" placeholder="Nombre del cliente" required>
@@ -114,7 +113,6 @@
       <input type="number" id="precio" placeholder="Precio" required>
       <button type="submit">Crear Orden</button>
     </form>
-
     <ul id="lista-ordenes"></ul>
   </div>
 </body>
