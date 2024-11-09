@@ -22,7 +22,7 @@
     </div>
 
     <script>
-        const apiUrl = 'https://ordenes-orpin.vercel.app';  // Cambia esto al dominio de Vercel
+        const apiUrl = 'https://<tu-proyecto>.vercel.app';  // Cambia esto al dominio de Vercel
         const ordenesList = document.getElementById('ordenesList');
         const ordenForm = document.getElementById('ordenForm');
 
@@ -30,6 +30,9 @@
         async function cargarOrdenes() {
             try {
                 const response = await fetch(`${apiUrl}/ordenes`);
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar las órdenes');
+                }
                 const ordenes = await response.json();
                 ordenesList.innerHTML = '';
                 ordenes.forEach(orden => {
