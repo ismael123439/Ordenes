@@ -8,88 +8,110 @@
 </head>
 <body>
   <div class="container">
-    <h1>Órdenes de Trabajo</h1>
+    <h1>Gestión de Órdenes de Trabajo</h1>
 
-    <form id="form-orden">
-      <input type="text" id="cliente" placeholder="Cliente" required>
-      <input type="text" id="patente" placeholder="Patente" required>
-      <input type="text" id="camion" placeholder="Camión" required>
-      <textarea id="trabajo" placeholder="Descripción del trabajo (mínimo 300 palabras)" required></textarea>
-      <input type="number" id="precio" placeholder="Precio" required>
+    <!-- Formulario para crear nueva orden -->
+    <form id="formularioOrden">
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" required><br>
+
+      <label for="cliente">Cliente:</label>
+      <input type="text" id="cliente" required><br>
+
+      <label for="patente">Patente:</label>
+      <input type="text" id="patente" required><br>
+
+      <label for="camion">Camión:</label>
+      <input type="text" id="camion" required><br>
+
+      <label for="trabajo">Trabajo:</label>
+      <textarea id="trabajo" rows="10" required></textarea><br>
+
+      <label for="precio">Precio:</label>
+      <input type="number" id="precio" required><br>
+
       <button type="submit">Crear Orden</button>
     </form>
 
-    <ul id="ordenes-lista"></ul>
+    <hr>
+
+    <!-- Lista de órdenes -->
+    <h2>Órdenes de Trabajo</h2>
+    <ul id="listaOrdenes"></ul>
   </div>
 
   <script>
-    const formOrden = document.getElementById('form-orden');
-    const ordenesLista = document.getElementById('ordenes-lista');
+    const apiUrl = 'https://ordenes-orpin.vercel.app';  // Cambia la URL a tu dominio en Vercel
 
-    // Función para cargar las órdenes desde el servidor
-    async function cargarOrdenes() {
-      const res = await fetch('/ordenes');
-      const ordenes = await res.json();
-      ordenesLista.innerHTML = '';
-      ordenes.forEach(orden => {
-        const li = document.createElement('li');
-        li.classList.add('orden-item');
-        li.innerHTML = `
-          <p><strong>Fecha:</strong> ${new Date(orden.fecha).toLocaleDateString()}</p>
-          <p><strong>Cliente:</strong> ${orden.cliente}</p>
-          <p><strong>Patente:</strong> ${orden.patente}</p>
-          <p><strong>Camión:</strong> ${orden.camion}</p>
-          <p><strong>Trabajo:</strong> ${orden.trabajo}</p>
-          <p><strong>Precio:</strong> $${orden.precio}</p>
-          <button onclick="editarOrden('${orden._id}')">Editar</button>
-          <button onclick="borrarOrden('${orden._id}')">Borrar</button>
-        `;
-        ordenesLista.appendChild(li);
-      });
+    // Función para cargar todas las órdenes
+    function cargarOrdenes() {
+      fetch(`${apiUrl}/ordenes`)
+        .then(response => response.json())
+        .then(ordenes => {
+          const listaOrdenes = document.getElementById('listaOrdenes');
+          listaOrdenes.innerHTML = '';  // Limpiar la lista antes de agregar nuevas órdenes
+          ordenes.forEach(orden => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <strong>Fecha:</strong> ${orden.fecha} <br>
+              <strong>Cliente:</strong> ${orden.cliente} <br>
+              <strong>Patente:</strong> ${orden.patente} <br>
+              <strong>Camión:</strong> ${orden.camion} <br>
+              <strong>Trabajo:</strong> ${orden.trabajo} <br>
+              <strong>Precio:</strong> $${orden.precio} <br>
+              <button onclick="editarOrden('${orden._id}')">Editar</button>
+              <button onclick="borrarOrden('${orden._id}')">Borrar</button>
+            `;
+            listaOrdenes.appendChild(li);
+          });
+        })
+        .catch(error => console.error('Error:', error));
     }
 
     // Función para crear una nueva orden
-    formOrden.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
+    document.getElementById('formularioOrden').addEventListener('submit', function(event) {
+      event.preventDefault();
+
       const nuevaOrden = {
+        fecha: document.getElementById('fecha').value,
         cliente: document.getElementById('cliente').value,
         patente: document.getElementById('patente').value,
         camion: document.getElementById('camion').value,
         trabajo: document.getElementById('trabajo').value,
-        precio: parseFloat(document.getElementById('precio').value),
-        fecha: new Date()
+        precio: document.getElementById('precio').value
       };
 
-      await fetch('/orden', {
+      fetch(`${apiUrl}/orden`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(nuevaOrden)
-      });
-
-      formOrden.reset();
-      cargarOrdenes();
+      })
+      .then(response => response.json())
+      .then(() => {
+        cargarOrdenes();  // Recargar las órdenes después de crear una nueva
+      })
+      .catch(error => console.error('Error:', error));
     });
 
     // Función para borrar una orden
-    async function borrarOrden(id) {
-      if (confirm('¿Estás seguro de borrar esta orden?')) {
-        await fetch(`/orden/${id}`, {
-          method: 'DELETE'
-        });
-        cargarOrdenes();
-      }
+    function borrarOrden(id) {
+      fetch(`${apiUrl}/orden/${id}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(() => {
+          cargarOrdenes();  // Recargar la lista de órdenes después de borrar una
+        })
+        .catch(error => console.error('Error:', error));
     }
 
-    // Función para editar una orden (pendiente de implementación)
-    async function editarOrden(id) {
-      // Aquí iría la lógica para editar la orden, por ejemplo, mostrando un formulario con los datos actuales
+    // Función para editar una orden (puedes implementar la lógica aquí)
+    function editarOrden(id) {
+      alert(`Editar orden con ID: ${id}`);
     }
 
-    // Cargar las órdenes al cargar la página
-    window.onload = cargarOrdenes;
+    // Cargar las órdenes al inicio
+    cargarOrdenes();
   </script>
 </body>
 </html>
