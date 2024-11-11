@@ -1,3 +1,4 @@
+// api/index.js
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const app = express();
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(express.static('public')); // Sirve los archivos estáticos, como HTML y CSS
 
 // Ruta para obtener todas las órdenes
-app.get('/ordenes', async (req, res) => {
+app.get('/api/ordenes', async (req, res) => {
   try {
     const ordenes = await collection.find().toArray();
     res.json(ordenes);
@@ -33,7 +34,7 @@ app.get('/ordenes', async (req, res) => {
 });
 
 // Ruta para crear una nueva orden
-app.post('/orden', async (req, res) => {
+app.post('/api/orden', async (req, res) => {
   const nuevaOrden = req.body;
   try {
     await collection.insertOne(nuevaOrden);
@@ -44,7 +45,7 @@ app.post('/orden', async (req, res) => {
 });
 
 // Ruta para editar una orden
-app.put('/orden/:id', async (req, res) => {
+app.put('/api/orden/:id', async (req, res) => {
   const { id } = req.params;
   const actualizacion = req.body;
   try {
@@ -56,7 +57,7 @@ app.put('/orden/:id', async (req, res) => {
 });
 
 // Ruta para borrar una orden
-app.delete('/orden/:id', async (req, res) => {
+app.delete('/api/orden/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
