@@ -1,5 +1,5 @@
-// api/index.js
 const express = require('express');
+const cors = require('cors');  // Requiere el paquete CORS
 const { MongoClient, ObjectId } = require('mongodb');
 const app = express();
 
@@ -22,6 +22,15 @@ client.connect()
 
 app.use(express.json());
 app.use(express.static('public')); // Sirve los archivos estáticos, como HTML y CSS
+
+// Configuración CORS para permitir solicitudes desde Railway
+const corsOptions = {
+  origin: 'https://ordenes-production.up.railway.app',  // Aquí va el dominio de tu frontend en Railway
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+};
+
+app.use(cors(corsOptions)); // Aplica el middleware CORS a todas las rutas
 
 // Ruta para obtener todas las órdenes
 app.get('/api/ordenes', async (req, res) => {
