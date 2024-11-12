@@ -1,89 +1,140 @@
-/* Estilo general */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f4f8;
-    color: #333;
+/* Reset de márgenes y padding */
+* {
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* Encabezado */
-h1 {
-    color: #004aad;
-    font-size: 1.8em;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* Estilos del formulario */
-form {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    color: #004aad;
-    margin-top: 15px;
-}
-
-input[type="text"],
-input[type="datetime-local"],
-input[type="number"] {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 0;
     box-sizing: border-box;
-    font-size: 1em;
-    color: #333;
-    background-color: #f9f9f9;
 }
 
-input:focus {
-    border-color: #00b300;
-    outline: none;
+/* Estilo global */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212; /* Fondo oscuro */
+    color: #fff; /* Texto blanco para contraste */
+    margin: 0;
+    padding: 0;
 }
 
-/* Botón de envío */
-button[type="submit"] {
+/* Estilo del contenedor principal */
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #0ddab8; /* Nuevo verde para el título principal */
+    margin-top: 30px;
+}
+
+/* Estilo del formulario */
+form {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #1c1c1c; /* Fondo oscuro para el formulario */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff; /* Blanco para las etiquetas */
+}
+
+form input[type="text"],
+form input[type="datetime-local"],
+form input[type="number"] {
     width: 100%;
     padding: 10px;
-    background-color: #004aad;
-    color: #ffffff;
+    margin: 5px 0 15px 0;
+    border: 1px solid #444; /* Gris oscuro para bordes */
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #fff; /* Texto blanco */
+    background-color: #333; /* Fondo oscuro para inputs */
+}
+
+form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #003366; /* Azul para el botón */
+    color: #fff;
     border: none;
     border-radius: 5px;
-    font-size: 1em;
+    font-size: 1.1rem;
     cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
 }
 
-button[type="submit"]:hover {
-    background-color: #0077cc;
+form button:hover {
+    background-color: #001f33; /* Azul más oscuro */
 }
 
-/* Responsividad */
-@media (max-width: 480px) {
-    form {
-        padding: 15px;
-    }
+/* Estilo de la lista de órdenes */
+h2 {
+    text-align: center;
+    margin: 30px 0 10px;
+    color: #0ddab8; /* Nuevo verde para el subtítulo */
+    font-size: 1.8rem;
+}
 
-    h1 {
-        font-size: 1.5em;
-    }
+/* Estilo de la lista */
+ul#listaOrdenes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto;
+}
 
-    button[type="submit"] {
-        font-size: 0.9em;
-    }
+/* Estilo de cada orden cargada */
+ul#listaOrdenes li {
+    background-color: #1c1c1c; /* Fondo oscuro para cada orden */
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+ul#listaOrdenes li .orden-item {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #ddd; /* Gris claro */
+}
+
+ul#listaOrdenes li .orden-item strong {
+    color: #003366; /* Azul oscuro para los textos importantes */
+}
+
+/* Estilo de los botones dentro de la lista */
+ul#listaOrdenes li button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    border: none;
+    background-color: #fbc02d; /* Amarillo para el botón de editar */
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+ul#listaOrdenes li button:hover {
+    background-color: #f57f17; /* Amarillo más oscuro para el hover */
+}
+
+/* Estilo para el botón de eliminar (rojo) */
+ul#listaOrdenes li button.eliminar {
+    background-color: #d32f2f; /* Rojo para el botón de eliminar */
+}
+
+ul#listaOrdenes li button.eliminar:hover {
+    background-color: #c62828; /* Rojo más oscuro para el hover */
+}
+
+/* Estilo de la lista vacía */
+ul#listaOrdenes li.empty {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #aaa; /* Gris claro para el texto vacío */
 }

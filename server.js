@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -14,6 +15,9 @@ const client = new MongoClient(uri, {
   }
 });
 
+let db;
+let collection;
+
 client.connect()
   .then(() => {
     db = client.db("ordenes_trabajo");
@@ -22,16 +26,28 @@ client.connect()
   })
   .catch(err => console.error('Error al conectar a MongoDB:', err));
 
-// Middleware para parsear JSON
 app.use(bodyParser.json());
-app.use(express.static('public')); // Sirve archivos estáticos desde la carpeta "public"
+app.use(express.static(path.join(__dirname, 'public'))); // Sirve los archivos estáticos de la carpeta 'public'
 
+// Ruta para servir la página principal (index.html)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Ruta para obtener todas las órdenes desde la base de datos
+app.get('/api/ordenes', async (req, res) => {
+  try {
+    const ordenes = await collection.find().toArray(); // Obtener todas las órdenes
+    res.json(ordenes); // Responde con JSON
+  } catch (error) {
+    console.error("Error al obtener las órdenes:", error);
+    res.status(500).send("Error al obtener las órdenes");
+  }
+});
+
+// Ruta para insertar una nueva orden en la base de datos
 app.post('/api/orden', async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db("miNuevaBaseDeDatos");
-    const collection = db.collection("miNuevaColeccion");
-
     const ordenDeTrabajo = req.body;
     const resultado = await collection.insertOne(ordenDeTrabajo);
     
@@ -39,8 +55,45 @@ app.post('/api/orden', async (req, res) => {
   } catch (error) {
     console.error("Error al insertar la orden de trabajo:", error);
     res.status(500).send("Error al insertar la orden de trabajo");
-  } finally {
-    await client.close();
+  }
+});
+
+app.put('/api/orden/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ordenDeTrabajo = req.body;
+
+    const resultado = await collection.updateOne(
+      { _id: new MongoClient.ObjectId(id) },  // Convertir el id a ObjectId de MongoDB
+      { $set: ordenDeTrabajo }  // Actualizar los campos con los datos recibidos
+    );
+
+    if (resultado.modifiedCount === 0) {
+      return res.status(404).send("Orden no encontrada o no hubo cambios");
+    }
+
+    res.send("Orden actualizada con éxito");
+  } catch (error) {
+    console.error("Error al actualizar la orden de trabajo:", error);
+    res.status(500).send("Error al actualizar la orden de trabajo");
+  }
+});
+
+// Ruta para eliminar una orden de trabajo
+app.delete('/api/orden/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const resultado = await collection.deleteOne({ _id: new MongoClient.ObjectId(id) });
+
+    if (resultado.deletedCount === 0) {
+      return res.status(404).send("Orden no encontrada");
+    }
+
+    res.send("Orden eliminada con éxito");
+  } catch (error) {
+    console.error("Error al eliminar la orden de trabajo:", error);
+    res.status(500).send("Error al eliminar la orden de trabajo");
   }
 });
 
@@ -48,6 +101,3 @@ app.post('/api/orden', async (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });
-
-
-module.exports = app;

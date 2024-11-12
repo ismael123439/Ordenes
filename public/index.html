@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cargar Orden de Trabajo</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <h1>Cargar Orden de Trabajo</h1>
@@ -30,7 +30,43 @@
         <button type="submit">Cargar Orden de Trabajo</button>
     </form>
 
+    <h2>Órdenes Guardadas:</h2>
+    <ul id="listaOrdenes">
+        <!-- Las órdenes se cargarán aquí desde el servidor -->
+    </ul>
+
     <script>
+        // Cargar las órdenes desde el servidor
+        async function cargarOrdenes() {
+            try {
+                const response = await fetch('/api/ordenes');
+                if (!response.ok) {
+                    throw new Error('Error al cargar las órdenes');
+                }
+                const ordenes = await response.json();
+                const listaOrdenes = document.getElementById('listaOrdenes');
+                listaOrdenes.innerHTML = ''; // Limpiar la lista antes de cargar las nuevas órdenes
+                ordenes.forEach(orden => {
+                    const li = document.createElement('li');
+                    li.classList.add('orden');
+                    li.innerHTML = `
+                        <div class="orden-item"><strong>Fecha:</strong> ${orden.fecha}</div>
+                        <div class="orden-item"><strong>Cliente:</strong> ${orden.cliente}</div>
+                        <div class="orden-item"><strong>Patente:</strong> ${orden.patente}</div>
+                        <div class="orden-item"><strong>Camión:</strong> ${orden.camion}</div>
+                        <div class="orden-item"><strong>Trabajo:</strong> ${orden.trabajo}</div>
+                        <div class="orden-item"><strong>Precio:</strong> $${orden.precio}</div>
+                        <button onclick="editarOrden('${orden._id}')">Editar</button>
+                        <button onclick="eliminarOrden('${orden._id}')">Eliminar</button>
+                    `;
+                    listaOrdenes.appendChild(li);
+                });
+            } catch (error) {
+                console.error("Error al cargar las órdenes:", error);
+            }
+        }
+
+        // Enviar la nueva orden de trabajo
         document.getElementById('ordenDeTrabajoForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
@@ -55,7 +91,8 @@
                 if (response.ok) {
                     const jsonResponse = await response.json();
                     alert(`Orden de trabajo cargada con éxito. ID: ${jsonResponse.insertedId}`);
-                    document.getElementById('ordenDeTrabajoForm').reset(); // Resetea el formulario
+                    document.getElementById('ordenDeTrabajoForm').reset();
+                    cargarOrdenes(); // Recargar las órdenes
                 } else {
                     alert('Error al cargar la orden de trabajo');
                 }
@@ -64,6 +101,69 @@
                 alert('Error al conectar con el servidor');
             }
         });
+
+        // Editar una orden
+        async function editarOrden(id) {
+            const nuevaFecha = prompt("Nueva Fecha:");
+            const nuevoCliente = prompt("Nuevo Cliente:");
+            const nuevaPatente = prompt("Nueva Patente:");
+            const nuevoCamion = prompt("Nuevo Camión:");
+            const nuevoTrabajo = prompt("Nuevo Trabajo:");
+            const nuevoPrecio = prompt("Nuevo Precio:");
+
+            const ordenEditada = {
+                fecha: nuevaFecha,
+                cliente: nuevoCliente,
+                patente: nuevaPatente,
+                camion: nuevoCamion,
+                trabajo: nuevoTrabajo,
+                precio: parseFloat(nuevoPrecio),
+            };
+
+            try {
+                const response = await fetch(`/api/orden/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(ordenEditada),
+                });
+
+                if (response.ok) {
+                    alert("Orden actualizada con éxito");
+                    cargarOrdenes(); // Recargar las órdenes
+                } else {
+                    alert("Error al actualizar la orden");
+                }
+            } catch (error) {
+                console.error("Error al editar la orden:", error);
+                alert("Error al conectar con el servidor");
+            }
+        }
+
+        // Eliminar una orden
+        async function eliminarOrden(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta orden?")) {
+                try {
+                    const response = await fetch(`/api/orden/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (response.ok) {
+                        alert("Orden eliminada con éxito");
+                        cargarOrdenes(); // Recargar las órdenes
+                    } else {
+                        alert("Error al eliminar la orden");
+                    }
+                } catch (error) {
+                    console.error("Error al eliminar la orden:", error);
+                    alert("Error al conectar con el servidor");
+                }
+            }
+        }
+        
+        // Cargar las órdenes al inicio
+        window.onload = cargarOrdenes;
     </script>
 </body>
 </html>
