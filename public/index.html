@@ -3,97 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Órdenes de Trabajo</title>
+    <title>Cargar Orden de Trabajo</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Órdenes de Trabajo</h1>
-        <form id="ordenForm">
-            <input type="text" id="fecha" placeholder="Fecha" required>
-            <input type="text" id="cliente" placeholder="Cliente" required>
-            <input type="text" id="patente" placeholder="Patente" required>
-            <input type="text" id="camion" placeholder="Camión" required>
-            <textarea id="trabajo" placeholder="Descripción del trabajo" required></textarea>
-            <input type="number" id="precio" placeholder="Precio" required>
-            <button type="submit">Crear Orden</button>
-        </form>
-        <div id="ordenesList"></div>
-    </div>
+    <h1>Cargar Orden de Trabajo</h1>
+    <form id="ordenDeTrabajoForm">
+        <label for="fecha">Fecha:</label>
+        <input type="datetime-local" id="fecha" name="fecha" required><br>
+
+        <label for="cliente">Cliente:</label>
+        <input type="text" id="cliente" name="cliente" required><br>
+
+        <label for="patente">Patente:</label>
+        <input type="text" id="patente" name="patente" required><br>
+
+        <label for="camion">Camión:</label>
+        <input type="text" id="camion" name="camion" required><br>
+
+        <label for="trabajo">Trabajo:</label>
+        <input type="text" id="trabajo" name="trabajo" required><br>
+
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" name="precio" required><br>
+
+        <button type="submit">Cargar Orden de Trabajo</button>
+    </form>
 
     <script>
-        // Aquí debes poner el nombre real de tu proyecto de Vercel
-        const apiUrl = 'https://ordenes-orpin.vercel.app';  // Reemplaza con tu URL de Vercel
+        document.getElementById('ordenDeTrabajoForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-        const ordenesList = document.getElementById('ordenesList');
-        const ordenForm = document.getElementById('ordenForm');
-
-        // Función para cargar las órdenes desde el servidor
-        async function cargarOrdenes() {
-            try {
-                const response = await fetch(`${apiUrl}/ordenes`);
-                if (!response.ok) {
-                    throw new Error('No se pudo cargar las órdenes');
-                }
-                const ordenes = await response.json();
-                ordenesList.innerHTML = '';
-                ordenes.forEach(orden => {
-                    const ordenElement = document.createElement('div');
-                    ordenElement.classList.add('orden');
-                    ordenElement.innerHTML = `
-                        <p><strong>Fecha:</strong> ${orden.fecha}</p>
-                        <p><strong>Cliente:</strong> ${orden.cliente}</p>
-                        <p><strong>Patente:</strong> ${orden.patente}</p>
-                        <p><strong>Camión:</strong> ${orden.camion}</p>
-                        <p><strong>Trabajo:</strong> ${orden.trabajo}</p>
-                        <p><strong>Precio:</strong> ${orden.precio}</p>
-                        <button onclick="borrarOrden('${orden._id}')">Borrar</button>
-                    `;
-                    ordenesList.appendChild(ordenElement);
-                });
-            } catch (error) {
-                console.error('Error al cargar las órdenes:', error);
-            }
-        }
-
-        // Función para crear una nueva orden
-        ordenForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nuevaOrden = {
+            const ordenDeTrabajo = {
                 fecha: document.getElementById('fecha').value,
                 cliente: document.getElementById('cliente').value,
                 patente: document.getElementById('patente').value,
                 camion: document.getElementById('camion').value,
                 trabajo: document.getElementById('trabajo').value,
-                precio: document.getElementById('precio').value,
+                precio: parseFloat(document.getElementById('precio').value),
             };
 
             try {
-                await fetch(`${apiUrl}/orden`, {
+                const response = await fetch('/api/orden', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevaOrden)
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(ordenDeTrabajo),
                 });
-                cargarOrdenes();  // Recarga las órdenes después de crear una nueva
-                ordenForm.reset();
+
+                if (response.ok) {
+                    const jsonResponse = await response.json();
+                    alert(`Orden de trabajo cargada con éxito. ID: ${jsonResponse.insertedId}`);
+                    document.getElementById('ordenDeTrabajoForm').reset(); // Resetea el formulario
+                } else {
+                    alert('Error al cargar la orden de trabajo');
+                }
             } catch (error) {
-                console.error('Error al crear la orden:', error);
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor');
             }
         });
-
-        // Función para borrar una orden
-        async function borrarOrden(id) {
-            try {
-                await fetch(`${apiUrl}/orden/${id}`, {
-                    method: 'DELETE'
-                });
-                cargarOrdenes();  // Recarga las órdenes después de eliminar una
-            } catch (error) {
-                console.error('Error al borrar la orden:', error);
-            }
-        }
-
-        cargarOrdenes();  // Carga las órdenes al iniciar
     </script>
 </body>
 </html>

@@ -1,16 +1,18 @@
 const express = require('express');
-const cors = require('cors');  // Requiere el paquete CORS
-const { MongoClient, ObjectId } = require('mongodb');
+const bodyParser = require('body-parser');
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
 const app = express();
+const port = 3000;
 
-// Usa el puerto asignado por Vercel o el puerto 3000
-const port = process.env.PORT || 3000;
-
-// Conexión con MongoDB
 const uri = "mongodb+srv://isma:isma@cluster0.tgxly.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
-
-let db, collection;
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 
 client.connect()
   .then(() => {
@@ -20,69 +22,32 @@ client.connect()
   })
   .catch(err => console.error('Error al conectar a MongoDB:', err));
 
-app.use(express.json());
-app.use(express.static('public')); // Sirve los archivos estáticos, como HTML y CSS
+// Middleware para parsear JSON
+app.use(bodyParser.json());
+app.use(express.static('public')); // Sirve archivos estáticos desde la carpeta "public"
 
-// Configuración CORS para permitir solicitudes desde Railway
-const corsOptions = {
-  origin: 'https://ordenes-production.up.railway.app',  // Aquí va el dominio de tu frontend en Railway
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
-};
-
-app.use(cors(corsOptions)); // Aplica el middleware CORS a todas las rutas
-
-// Ruta para obtener todas las órdenes
-app.get('/api/ordenes', async (req, res) => {
-  try {
-    const ordenes = await collection.find().toArray();
-    res.json(ordenes);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al obtener las órdenes' });
-  }
-});
-
-// Ruta para crear una nueva orden
 app.post('/api/orden', async (req, res) => {
-  const nuevaOrden = req.body;
   try {
-    await collection.insertOne(nuevaOrden);
-    res.status(201).send('Orden creada');
-  } catch (err) {
-    res.status(500).send('Error al crear la orden');
+    await client.connect();
+    const db = client.db("miNuevaBaseDeDatos");
+    const collection = db.collection("miNuevaColeccion");
+
+    const ordenDeTrabajo = req.body;
+    const resultado = await collection.insertOne(ordenDeTrabajo);
+    
+    res.json({ insertedId: resultado.insertedId });
+  } catch (error) {
+    console.error("Error al insertar la orden de trabajo:", error);
+    res.status(500).send("Error al insertar la orden de trabajo");
+  } finally {
+    await client.close();
   }
 });
 
-// Ruta para editar una orden
-app.put('/api/orden/:id', async (req, res) => {
-  const { id } = req.params;
-  const actualizacion = req.body;
-  try {
-    await collection.updateOne({ _id: new ObjectId(id) }, { $set: actualizacion });
-    res.send('Orden actualizada');
-  } catch (err) {
-    res.status(500).send('Error al actualizar la orden');
-  }
-});
-
-// Ruta para borrar una orden
-app.delete('/api/orden/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
-    if (result.deletedCount === 1) {
-      res.send('Orden eliminada');
-    } else {
-      res.status(404).send('Orden no encontrada');
-    }
-  } catch (err) {
-    res.status(500).send('Error al eliminar la orden');
-  }
-});
-
-// Configuración para Vercel
+// Inicia el servidor
 app.listen(port, () => {
-  console.log(`Servidor corriendo en el puerto ${port}`);
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });
+
 
 module.exports = app;
